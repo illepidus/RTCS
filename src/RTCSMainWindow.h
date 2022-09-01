@@ -1,12 +1,12 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef RTCSMAINWINDOW_H
+#define RTCSMAINWINDOW_H
 
 #include "global.h"
 #include <QMainWindow>
 
 class RTCSMainWindow : public QMainWindow
 {
-    Q_OBJECT
+Q_OBJECT
 public:
 	RTCSMainWindow();
 };

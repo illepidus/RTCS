@@ -1,14 +1,13 @@
 #include "global.h"
-#include "RTCSMainWindow.h"
+#include "RTCS.h"
 
 int main(int argc, char* argv[]) {
-    QApplication app(argc, argv);
-    QCoreApplication::setOrganizationName("Centrogas");
-    QCoreApplication::setApplicationName("RTCS");
+	QApplication app(argc, argv);
+	QCoreApplication::setOrganizationName("Centrogas");
+	QCoreApplication::setApplicationName("RTCS");
 
-    RTCSMainWindow *rtcs = new RTCSMainWindow();
-    rtcs->setWindowState(Qt::WindowFullScreen);
-    rtcs->show();
+	RTCS rtcs;
+	rtcs.showMainWindow();
 
-    return app.exec();
+	return app.exec();
 }
