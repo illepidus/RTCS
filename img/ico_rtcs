@@ -1,0 +1,2 @@
+#!/bin/bash
+convert rtcs_16.png rtcs_32.png rtcs_48.png rtcs_64.png rtcs_128.png rtcs_256.png rtcs_512.png rtcs.ico
