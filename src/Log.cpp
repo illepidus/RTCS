@@ -5,34 +5,16 @@ Log::Log() : QObject()
 	
 }
 
-Log::Log(const char *file, int line, const char *function) : QObject(), file(file), line(line), function(function)
+Log& Log::getInstance()
 {
-	
+	static Log instance;
+	return instance;
 }
 
-//TODO: make logging
-
-void Log::info(QString m)
+void Log::log(int level, QString message, const char * file, int line, const char * function)
 {
-	qDebug() << m;
-}
-
-void Log::debug(QString m)
-{
-	qDebug() << file << m;
-}
-
-void Log::warning(QString m)
-{
-	qDebug() << m;
-}
-
-void Log::error(QString m)
-{
-	qDebug() << m;
-}
-
-void Log::fatal(QString m)
-{
-	qDebug() << m;
+	qDebug() << level << message;
+	emit getInstance().logged(message);
+	emit getInstance().logged(level, message);
+	emit getInstance().logged(level, message, file, line, function);
 }

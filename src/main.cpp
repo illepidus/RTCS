@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 	QCoreApplication::setApplicationName("rtcs");
 
 	RTCS rtcs;
-	rtcs.showMainWindow(true);
+	rtcs.showMainWindow(false);
 
 	Settings s;
 	$d(s.fileName());
