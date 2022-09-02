@@ -1,9 +1,11 @@
 #ifndef RTCS_H
 #define RTCS_H
 
-#include <QObject>
 #include "global.h"
 #include "RTCSMainWindow.h"
+#include "PID.h"
+
+#include <QObject>
 
 class RTCS : public QObject
 {

@@ -9,7 +9,15 @@ cd "$(dirname "$0")"
 # BUILD APPLICATION                                        #
 ############################################################
 qmake rtcs.pro
+if [ ! $? == 0 ]; then
+	echo -e "${RED}Qmake failed${NC}"
+	exit
+fi
 make
+if [ ! $? == 0 ]; then
+	echo -e "${RED}Make failed${NC}"
+	exit
+fi
 
 ############################################################
 # RUN   APPLICATION                                        #
