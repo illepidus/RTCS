@@ -12,6 +12,7 @@ class RTCS : public QObject
 Q_OBJECT
 private:
 	RTCSMainWindow *main_window;
+	PID *pid;
 public:
 	RTCS();
 public slots:

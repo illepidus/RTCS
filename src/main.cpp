@@ -12,9 +12,12 @@ int main(int argc, char* argv[]) {
 
 	RTCS rtcs;
 	rtcs.showMainWindow(true);
+
 	Settings s;
+	$d(s.fileName());
+	$d(s.value("test", "null").toString());
 	s.setValue("test", "test");
-	qDebug() << s.fileName();
+	$d(s.value("test", "null").toString());
 
 	return app.exec();
 }

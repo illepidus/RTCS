@@ -3,6 +3,8 @@
 RTCS::RTCS() : QObject()
 {
 	main_window = new RTCSMainWindow();
+	pid = new PID();
+	pid->start();
 }
 
 void RTCS::showMainWindow(bool fullscreen) {
