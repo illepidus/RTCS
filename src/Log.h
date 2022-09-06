@@ -9,6 +9,7 @@
 #define  $w(X) Log::log(2, X, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 #define  $e(X) Log::log(3, X, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 #define  $f(X) Log::log(4, X, __FILE__, __LINE__, __PRETTY_FUNCTION__)
+#define  $a(X) Log::log(5, X, __FILE__, __LINE__, __PRETTY_FUNCTION__)
 
 class Log : public QObject
 {
@@ -25,6 +26,7 @@ public:
 	static const int WARNING = 2;
 	static const int ERROR = 3;
 	static const int FATAL = 4;
+	static const int ADMIN = 5;
 	/**********************************/
 	static Log& getInstance();
 	static void log(int, QString, const char *, int, const char *);

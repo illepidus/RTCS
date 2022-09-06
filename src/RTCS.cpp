@@ -3,8 +3,8 @@
 RTCS::RTCS() : QObject()
 {
 	main_window = new RTCSMainWindow();
-	pid = new PID();
-	pid->start();
+	pid_heater = new PID("Heater");
+	pid_cooler = new PID("Cooler");
 
 	QObject::connect(&Log::getInstance(), SIGNAL(logged(QString)), main_window, SLOT(setWindowTitle(QString)));
 }
@@ -12,6 +12,8 @@ RTCS::RTCS() : QObject()
 void RTCS::showMainWindow(bool fullscreen) {
 	if (fullscreen)
 		main_window->setWindowState(Qt::WindowFullScreen);
+	else
+		main_window->setWindowState(Qt::WindowMaximized);
 	main_window->show();
 }
 

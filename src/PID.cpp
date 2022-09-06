@@ -1,6 +1,6 @@
 #include "PID.h"
 
-PID::PID() : QObject()
+PID::PID(QString id) : QObject(), id(id)
 {
 	init();
 	loadSettings();
@@ -25,11 +25,11 @@ void PID::init()
 void PID::loadSettings()
 {
 	Settings s;
-	r  = s.value("PID/r",  80.0).toDouble();
-	dt = s.value("PID/dt", 1.0 ).toDouble();
-	Kp = s.value("PID/Kp", 0.05).toDouble();
-	Ki = s.value("PID/Ki", 0.01).toDouble();
-	Kd = s.value("PID/Kd", 10  ).toDouble();
+	r  = s.value(QString("PID/%1/r") .arg(id), 80.0).toDouble();
+	dt = s.value(QString("PID/%1/dt").arg(id), 1.0 ).toDouble();
+	Kp = s.value(QString("PID/%1/Kp").arg(id), 0.05).toDouble();
+	Ki = s.value(QString("PID/%1/Ki").arg(id), 0.01).toDouble();
+	Kd = s.value(QString("PID/%1/Kd").arg(id), 10  ).toDouble();
 
 	y  = 0;
 	r  = 80.0;
@@ -47,11 +47,11 @@ bool PID::saveSettings()
 		return false;
 	}
 	
-	s.setValue("PID/r",  r);
-	s.setValue("PID/dt", dt);
-	s.setValue("PID/Kp", Kp);
-	s.setValue("PID/Ki", Ki);
-	s.setValue("PID/Kd", Kd);
+	s.setValue(QString("PID/%1/r") .arg(id),  r);
+	s.setValue(QString("PID/%1/dt").arg(id), dt);
+	s.setValue(QString("PID/%1/Kp").arg(id), Kp);
+	s.setValue(QString("PID/%1/Ki").arg(id), Ki);
+	s.setValue(QString("PID/%1/Kd").arg(id), Kd);
 	return true;
 }
 

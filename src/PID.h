@@ -34,7 +34,7 @@ class PID : public QObject
 {
 Q_OBJECT
 public:
-	PID();
+	PID(QString);
 private slots:
 	void init();
 	bool step();
@@ -45,6 +45,7 @@ public slots:
 signals: 
 	void control(float, float);
 private:
+	QString id;
 	double r, dt, Kp, Ki, Kd;    //Установочные параметры
 	double y;                    //Измеряемый параметр
 	double u, U, P, I, D, e, de; //Вычисляемые параметры

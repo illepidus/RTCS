@@ -2,7 +2,7 @@
 
 Log::Log() : QObject()
 {
-	
+
 }
 
 Log& Log::getInstance()
