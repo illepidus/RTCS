@@ -14,7 +14,6 @@ int main(int argc, char* argv[]) {
 	rtcs.showMainWindow(true);
 
 	Settings s;
-	$d(s.fileName());
 
 	return app.exec();
 }
