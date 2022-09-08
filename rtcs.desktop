@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=RTCS
+Comment=Reactor Temperature Control Shield
+NoDisplay=false
+StartupNotify=false
+Exec=/opt/rtcs/rtcs

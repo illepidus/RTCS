@@ -13,7 +13,9 @@ int main(int argc, char* argv[]) {
 	RTCS rtcs;
 	rtcs.showMainWindow(true);
 
-	Settings s;
+	QSettings s;
+	$d(s.fileName());
+	s.setValue("editor/wrapMargin", 68);
 
 	return app.exec();
 }

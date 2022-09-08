@@ -1,15 +1,13 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
-#define SETTINGS_FORMAT QSettings::NativeFormat
-#define SETTINGS_PATH   "/etc/rtcs/rtcs.conf"
+#define SETTINGS_FORMAT QSettings::IniFormat
+#define SETTINGS_PATH   "/opt/rtcs/conf/rtcs.conf"
 
 class Settings : public QSettings
 {
 public:
-	//TODO: make the following constructor working
-	//Settings():QSettings(SETTINGS_PATH, SETTINGS_FORMAT){};
-	Settings():QSettings(){};
+	Settings():QSettings(SETTINGS_PATH, SETTINGS_FORMAT){};
 };
 
 #endif

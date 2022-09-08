@@ -5,43 +5,46 @@
 ############################################################
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-NC='\033[0m' # No Color
+STOP='\033[0m'
 
 cd "$(dirname "$0")"
 
-############################################################
-# CHECK ADMIN PRIVILEGES                                   #
-############################################################
-if [[ $EUID -ne 0 ]]; then
-	echo -e "${RED}This script must be run as root${NC}"
+###############################################################################
+# CHECK IF SUDO                                                               #
+###############################################################################
+if [ ${SUDO_USER+x} ]; then
+	echo -e "${RED}This install script uses sudo itself.${STOP}"
+	echo -e "${RED}Please do not use sudo to launch it.${STOP}"
 	exit 1
 fi
 
-############################################################
-# BUILD APPLICATION                                        #
-############################################################
+###############################################################################
+# BUILD APPLICATION                                                           #
+###############################################################################
+echo -e "${GREEN}Running qmake...${STOP}"
 qmake rtcs.pro
 if [ ! $? == 0 ]; then
-	echo -e "${RED}Qmake failed${NC}"
+	echo -e "${RED}Qmake failed${STOP}"
 	exit
 fi
+echo -e "${GREEN}Running make...${STOP}"
 make
 if [ ! $? == 0 ]; then
-	echo -e "${RED}Make failed${NC}"
+	echo -e "${RED}Make failed${STOP}"
 	exit
 fi
 
-############################################################
-# CREATE FOLDERS                                           #
-############################################################
-mkdir -p /opt/rtcs
-mkdir -p /etc/rtcs
-touch /etc/rtcs/rtcs.conf
-chmod 666 /etc/rtcs/rtcs.conf
+###############################################################################
+# GRANT DEVICE PRIVILEGES                                                     #
+###############################################################################
+echo -e "${GREEN}Granting $USER permission to work with COM port.${STOP}"
+sudo usermod -aG dialout $USER
 
-############################################################
-# INSTALL APPLICATION                                      #
-############################################################
-cp bin/rtcs /opt/rtcs
-
-
+##############################################################################
+# INSTALL APPLICATION                                                         #
+###############################################################################
+sudo mkdir -p /opt/rtcs && sudo cp bin/rtcs $_
+sudo mkdir -p /opt/rtcs/img && sudo cp -r img/* $_
+mkdir -p "$XDG_CONFIG_HOME/autostart" && cp rtcs.desktop $_
+mkdir -p "$XDG_CONFIG_HOME/centrogas" && cp rtcs.conf $_
+echo -e "${GREEN}Done. ${STOP}"
