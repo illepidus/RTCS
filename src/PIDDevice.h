@@ -1,10 +1,8 @@
-#ifndef PID_H
-#define PID_H
+#ifndef PIDDEVICE_H
+#define PIDDEVICE_H
 
 #include "global.h"
-#include "Settings.h"
-
-#include <QObject>
+#include "Device.h"
 
 /**
 r [Уставка]
@@ -30,22 +28,29 @@ de = e - _e
 dt [Время дискретезации]
 **/
 
-class PID : public QObject
+class PIDDevice : public Device
 {
 Q_OBJECT
 public:
-	PID(QString);
+	PIDDevice(QString name, QObject *parent = nullptr);
 private slots:
-	void init();
 	bool step();
 public slots:
 	bool start();
+	bool stop();
+	bool reset();
 	void loadSettings();
 	bool saveSettings();
+	//------------------
+	bool setR(double);
+	bool setDT(double);
+	bool setKp(double);
+	bool setKi(double);
+	bool setKd(double);
+	bool setY(double);
 signals: 
 	void control(float, float);
 private:
-	QString id;
 	double r, dt, Kp, Ki, Kd;    //Установочные параметры
 	double y;                    //Измеряемый параметр
 	double u, U, P, I, D, e, de; //Вычисляемые параметры

@@ -3,10 +3,9 @@
 RTCS::RTCS() : QObject()
 {
 	main_window = new RTCSMainWindow();
-	pid_heater = new PID("Heater");
-	pid_cooler = new PID("Cooler");
-
-	QObject::connect(&Log::getInstance(), SIGNAL(logged(QString)), main_window, SLOT(setWindowTitle(QString)));
+	pid_heater = new PIDDevice("Heater", this);
+	pid_cooler = new PIDDevice("Cooler", this);
+	modbus_server = new ModbusServerDevice("Modbus", this);
 }
 
 void RTCS::showMainWindow(bool fullscreen) {

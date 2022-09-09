@@ -2,7 +2,7 @@
 #include "RTCS.h"
 
 #include <QApplication>
-#include "Settings.h"
+#include "Device.h"
 
 int main(int argc, char* argv[]) {
 	QApplication app(argc, argv);
@@ -13,9 +13,7 @@ int main(int argc, char* argv[]) {
 	RTCS rtcs;
 	rtcs.showMainWindow(true);
 
-	QSettings s;
-	$d(s.fileName());
-	s.setValue("editor/wrapMargin", 68);
+	Device d("Test");
 
 	return app.exec();
 }

@@ -3,7 +3,8 @@
 
 #include "global.h"
 #include "RTCSMainWindow.h"
-#include "PID.h"
+#include "PIDDevice.h"
+#include "ModbusServerDevice.h"
 
 #include <QObject>
 
@@ -12,8 +13,9 @@ class RTCS : public QObject
 Q_OBJECT
 private:
 	RTCSMainWindow *main_window;
-	PID *pid_heater;
-	PID *pid_cooler;
+	PIDDevice *pid_heater;
+	PIDDevice *pid_cooler;
+	ModbusServerDevice *modbus_server;
 public:
 	RTCS();
 public slots:

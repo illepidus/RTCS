@@ -2,6 +2,5 @@
 #define GLOBAL_H
 
 #include <QtCore>
-#include "Log.h"
 
 #endif
