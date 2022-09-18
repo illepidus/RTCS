@@ -13,9 +13,8 @@ class Device : public QObject
 
 	public:
 		enum StateFlag {
-			Disabled    = 0b00000001,
-			Initialized = 0b00000010,
-			Running     = 0b00000100
+			Disabled    = 0b00000001, //Any device can be disabled in config file or programmaticly.
+			Running     = 0b00000100  //Not that obvious
 		};
 		Q_DECLARE_FLAGS(State, StateFlag)
 

@@ -65,11 +65,6 @@ bool PIDDevice::start()
 		return false;
 	}
 
-	if (getStateFlag(Device::Initialized)) {
-		qWarning() << name << "Cannot start PID while it is uninitialized";
-		return false;
-	}
-
 	reset();
 	setStateFlag(Device::Running, true);
 
@@ -88,11 +83,6 @@ bool PIDDevice::stop()
 
 bool PIDDevice::step()
 {
-	if (!getStateFlag(Device::Initialized)) {
-		qCritical() << name << "PID is uninitialized on step" << k;
-		return false;
-	}
-
 	if (getStateFlag(Device::Disabled)) {
 		qWarning() << name << "PID disabled on step" << k;
 		return false;
@@ -177,7 +167,6 @@ bool PIDDevice::setY(double v)
 {
 	if (qIsFinite(v)) {
 		y = v;
-		setStateFlag(Device::Initialized, true);
 		return true;
 	}
 	qWarning() << name << "Unable to set y to " << v;

@@ -9,11 +9,14 @@ int main(int argc, char* argv[]) {
 
 	QCoreApplication::setOrganizationName("centrogas");
 	QCoreApplication::setApplicationName("rtcs");
+	QStringList args = QCoreApplication::arguments();
+	qDebug() << "RTCS command line arguments = " << args;
+
+	bool gui = (args.contains("--nogui")) ? false : true;
+	bool fullscreen = (args.contains("--nofullscreen")) ? false : true;
 
 	RTCS rtcs;
-	rtcs.showMainWindow(true);
-
-	Device d("Test");
+	if (gui) rtcs.showMainWindow(fullscreen);
 
 	return app.exec();
 }
