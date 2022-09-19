@@ -55,7 +55,6 @@ private:
 	double y;                    //Измеряемый параметр
 	double u, U, P, I, D, e, de; //Вычисляемые параметры
 	double t, Se, _e, k;         //Промежуточные параметры
-	bool is_running;
 };
 
 #endif

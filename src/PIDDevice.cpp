@@ -18,8 +18,8 @@ void PIDDevice::loadSettings()
 
 bool PIDDevice::reset()
 {
-	if (getStateFlag(Device::Running)) {
-		qWarning() << name << "Cannot reset PID while it is running";
+	if (stateFlag(Device::Running)) {
+		qWarning() << name() << "Cannot reset PID while it is running";
 		return false;
 	}
 
@@ -41,7 +41,7 @@ bool PIDDevice::saveSettings()
 {
 	QSettings s;
 	if (!s.isWritable()) {
-		qCritical() << name << "Settings not writable";
+		qCritical() << name() << "Settings not writable";
 		return false;
 	}
 
@@ -55,13 +55,13 @@ bool PIDDevice::saveSettings()
 
 bool PIDDevice::start()
 {
-	if (getStateFlag(Device::Disabled)) {
-		qWarning() << name << "Cannot start PID while it is disabled";
+	if (stateFlag(Device::Disabled)) {
+		qWarning() << name() << "Cannot start PID while it is disabled";
 		return false;
 	}
 
-	if (getStateFlag(Device::Running)) {
-		qWarning() << name << "Cannot start PID while it is running";
+	if (stateFlag(Device::Running)) {
+		qWarning() << name() << "Cannot start PID while it is running";
 		return false;
 	}
 
@@ -73,8 +73,8 @@ bool PIDDevice::start()
 
 bool PIDDevice::stop()
 {
-	if (!getStateFlag(Device::Running)) {
-		qInfo() << name << "Nothing to stop as PID is not running";
+	if (!stateFlag(Device::Running)) {
+		qInfo() << name() << "Nothing to stop as PID is not running";
 		return false;
 	}
 	setStateFlag(Device::Running, false);
@@ -83,13 +83,13 @@ bool PIDDevice::stop()
 
 bool PIDDevice::step()
 {
-	if (getStateFlag(Device::Disabled)) {
-		qWarning() << name << "PID disabled on step" << k;
+	if (stateFlag(Device::Disabled)) {
+		qWarning() << name() << "PID disabled on step" << k;
 		return false;
 	}
 
-	if (!getStateFlag(Device::Running)) {
-		qInfo() << name << "PID stopped on step" << k;
+	if (!stateFlag(Device::Running)) {
+		qInfo() << name() << "PID stopped on step" << k;
 		return false;
 	}
 
@@ -119,7 +119,7 @@ bool PIDDevice::setR(double v)
 		r = v;
 		return true;
 	}
-	qWarning() << name << "Unable to set r to " << v;
+	qWarning() << name() << "Unable to set r to " << v;
 	return false;
 }
 
@@ -129,7 +129,7 @@ bool PIDDevice::setDT(double v)
 		dt = v;
 		return true;
 	}
-	qWarning() << name << "Unable to set dt to " << v;
+	qWarning() << name() << "Unable to set dt to " << v;
 	return false;
 }
 
@@ -139,7 +139,7 @@ bool PIDDevice::setKp(double v)
 		Kp = v;
 		return true;
 	}
-	qWarning() << name << "Unable to set Kp to " << v;
+	qWarning() << name() << "Unable to set Kp to " << v;
 	return false;
 }
 
@@ -149,7 +149,7 @@ bool PIDDevice::setKi(double v)
 		Ki = v;
 		return true;
 	}
-	qWarning() << name << "Unable to set Ki to " << v;
+	qWarning() << name() << "Unable to set Ki to " << v;
 	return false;
 }
 
@@ -159,7 +159,7 @@ bool PIDDevice::setKd(double v)
 		Kp = v;
 		return true;
 	}
-	qWarning() << name << "Unable to set Kp to " << v;
+	qWarning() << name() << "Unable to set Kp to " << v;
 	return false;
 }
 
@@ -169,6 +169,6 @@ bool PIDDevice::setY(double v)
 		y = v;
 		return true;
 	}
-	qWarning() << name << "Unable to set y to " << v;
+	qWarning() << name() << "Unable to set y to " << v;
 	return false;
 }

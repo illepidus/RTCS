@@ -19,10 +19,10 @@ class Device : public QObject
 		Q_DECLARE_FLAGS(State, StateFlag)
 
 	public slots:
-		QString getName() {return name;};
-		State getState(){return state;};
+		QString name() {return m_name;};
+		State state(){return m_state;};
 		void setState(State s);
-		bool getStateFlag(StateFlag f);
+		bool stateFlag(StateFlag f);
 		void setStateFlag(StateFlag f, bool v);
 		void loadSettings();
 		QString settingsKey(QString k);
@@ -31,8 +31,8 @@ class Device : public QObject
 		void stateChanged(State);
 
 	protected:
-		QString name;
-		State state;
+		QString m_name;
+		State m_state;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Device::State)

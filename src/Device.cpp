@@ -2,7 +2,7 @@
 
 Device::Device(QString n, QObject *p) : QObject(p)
 {
-	name = n;
+	m_name = n;
 	loadSettings();
 }
 
@@ -10,7 +10,7 @@ Device::Device(QString n, QObject *p) : QObject(p)
 
 QString Device::settingsKey(QString k)
 {
-	return (QString("devices/%1/%2").arg(name).arg(k));
+	return (QString("devices/%1/%2").arg(name()).arg(k));
 }
 
 void Device::loadSettings()
@@ -23,18 +23,18 @@ void Device::loadSettings()
 
 void Device::setState(State s)
 {
-	if (s != state) {
-		state = s;
+	if (s != m_state) {
+		m_state = s;
 		emit stateChanged(s);
 	}
 }
 
-bool Device::getStateFlag(StateFlag f)
+bool Device::stateFlag(StateFlag f)
 {
-	return state.testFlag(f);
+	return m_state.testFlag(f);
 }
 
 void Device::setStateFlag(StateFlag f, bool v)
 {
-	setState(state.setFlag(f, v));
+	setState(m_state.setFlag(f, v));
 }

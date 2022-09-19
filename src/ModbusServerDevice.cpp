@@ -2,88 +2,116 @@
 
 ModbusServerDevice::ModbusServerDevice(QString n, QObject *p) : Device(n, p)
 {
+	m_rtu = new QModbusRtuSerialMaster(this);
 	loadSettings();
-	serial_master = new QModbusRtuSerialMaster(this);
 
 	start();
-	request();
+
+	addRoutineRequest(112, QModbusRequest(QModbusPdu::FunctionCode(0x04), quint16(0x00), quint16(0x06)), this);
 }
 
 void ModbusServerDevice::loadSettings()
 {
-	/*
 	QSettings s;
-	setPortName(s.value(settingsKey("port_name"), "/dev/ttyUSB0").toString());
-	setBaudRate(s.value(settingsKey("baud_rate"), 115200).toInt());
-	setResponseTimeout(s.value(settingsKey("response_timeout"), 300).toInt());
-	*/
+	m_portName = s.value(settingsKey("port_name"), "/dev/ttyUSB0").toString();
+	m_parity   = static_cast<QSerialPort::Parity>   (s.value(settingsKey("parity"),    0     ).toInt());
+	m_baudRate = static_cast<QSerialPort::BaudRate> (s.value(settingsKey("baud_rate"), 115200).toInt());
+	m_dataBits = static_cast<QSerialPort::DataBits> (s.value(settingsKey("data_bits"), 8     ).toInt());
+	m_stopBits = static_cast<QSerialPort::StopBits> (s.value(settingsKey("stop_bits"), 1     ).toInt());
+	m_retries = (s.value(settingsKey("retries"), 3).toInt());
+	m_timeout = (s.value(settingsKey("timeout"), 300).toInt());
 }
 
-void ModbusServerDevice::request()
+void ModbusServerDevice::nextRequest()
 {
-	QModbusReply *reply = serial_master->sendReadRequest(QModbusDataUnit(QModbusDataUnit::InputRegisters, 0, 6), 112);
-	if (!reply->isFinished())
-		QObject::connect(reply, &QModbusReply::finished, this, &ModbusServerDevice::onReadReady);
-	else
-			delete reply;
+	if (m_routineRequests.empty() && m_requests.empty()) {
+		qDebug() << name() << "waiting...";
+		QTimer::singleShot(300, this, SLOT(nextRequest()));
+		return;
+	}
+
+	m_request = m_routineRequests.at(0);
+	QModbusReply *reply = m_rtu->sendRawRequest(m_request.request, m_request.address);
+
+	if (!reply->isFinished()) {
+		QObject::connect(reply, &QModbusReply::finished,      this, &ModbusServerDevice::onReplyFinished);
+	}
+	else {
+		delete reply;
+		QTimer::singleShot(300, this, SLOT(nextRequest()));
+	}
 }
 
-void ModbusServerDevice::onReadReady()
+void ModbusServerDevice::onReplyFinished()
 {
 	auto reply = qobject_cast<QModbusReply *>(QObject::sender());
 	if (!reply)
 		return;
 
 	if (reply->error() == QModbusDevice::NoError) {
-		const QModbusDataUnit unit = reply->result();
-		qDebug() << unit.values();
+		const QModbusResponse response = reply->rawResult();
+		qInfo() << name() << "request: " << m_request.request.functionCode() << m_request.request.data() << "response: "<< response.data();
+	}
+	else {
+		qCritical() << name() << "QModbusRtuSerialMaster" << reply->error();
 	}
 
 	reply->deleteLater();
-	request();
+	nextRequest();
+}
+
+bool ModbusServerDevice::addRoutineRequest(int address, QModbusRequest request, Device* device = nullptr) {
+	m_routineRequests += Request(address, request, device);
+	return true;
+}
+
+bool ModbusServerDevice::request(int address, QModbusRequest request, Device* device = nullptr) {
+	m_requests += Request(address, request, device);
+	return true;
 }
 
 bool ModbusServerDevice::start()
 {
-	if (getStateFlag(Device::Disabled)) {
-		qWarning() << name << "Cannot start while disabled";
+	if (stateFlag(Device::Disabled)) {
+		qWarning() << name() << "Cannot start while disabled";
 		return false;
 	}
 
-	if (getStateFlag(Device::Running)) {
-		qWarning() << name << "Cannot start while running";
+	if (stateFlag(Device::Running)) {
+		qWarning() << name() << "Cannot start while running";
 		return false;
 	}
 
-	serial_master->setConnectionParameter(QModbusDevice::SerialParityParameter,   QSerialPort::NoParity);
-	serial_master->setConnectionParameter(QModbusDevice::SerialBaudRateParameter, QSerialPort::Baud115200);
-	serial_master->setConnectionParameter(QModbusDevice::SerialDataBitsParameter, QSerialPort::Data8);
-	serial_master->setConnectionParameter(QModbusDevice::SerialStopBitsParameter, QSerialPort::OneStop);
-	serial_master->setConnectionParameter(QModbusDevice::SerialPortNameParameter, "/dev/ttyUSB0");
-	serial_master->setTimeout(300);
-	serial_master->setNumberOfRetries(3);
+	m_rtu->setConnectionParameter(QModbusDevice::SerialPortNameParameter, m_portName);
+	m_rtu->setConnectionParameter(QModbusDevice::SerialParityParameter,   m_parity);
+	m_rtu->setConnectionParameter(QModbusDevice::SerialBaudRateParameter, m_baudRate);
+	m_rtu->setConnectionParameter(QModbusDevice::SerialDataBitsParameter, m_dataBits);
+	m_rtu->setConnectionParameter(QModbusDevice::SerialStopBitsParameter, m_stopBits);
+	m_rtu->setTimeout(m_timeout);
+	m_rtu->setNumberOfRetries(m_retries);
 
-	if (serial_master->connectDevice()) {
+	if (m_rtu->connectDevice()) {
 		setStateFlag(Device::Running, true);
-		qInfo() << name << "Connected to serial port";
+		qInfo() << name() << "Connected to serial port";
+		nextRequest();
 		return true;
 	}
-	qCritical() << name << "Was not able to connect to serial port";
+	qCritical() << name() << "Was not able to connect to serial port";
 	return false;
 }
 
 bool ModbusServerDevice::stop()
 {
-	if (getStateFlag(Device::Disabled)) {
-		qWarning() << name << "Cannot stop while disabled";
+	if (stateFlag(Device::Disabled)) {
+		qWarning() << name() << "Cannot stop while disabled";
 		return false;
 	}
-	if (!getStateFlag(Device::Running)) {
-		qWarning() << name << "Cannot stop while running";
+	if (!stateFlag(Device::Running)) {
+		qWarning() << name() << "Cannot stop while running";
 		return false;
 	}
 
 	setStateFlag(Device::Running, false);
-	serial_master->disconnectDevice();
+	m_rtu->disconnectDevice();
 	return true;
 }
