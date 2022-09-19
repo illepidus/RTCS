@@ -8,6 +8,7 @@ ModbusServerDevice::ModbusServerDevice(QString n, QObject *p) : Device(n, p)
 	start();
 
 	addRoutineRequest(112, QModbusRequest(QModbusPdu::FunctionCode(0x04), quint16(0x00), quint16(0x06)), this);
+	request(112, QModbusRequest(QModbusPdu::FunctionCode(0x04), quint16(0x00), quint16(0x01)), this);
 }
 
 void ModbusServerDevice::loadSettings()
@@ -30,14 +31,22 @@ void ModbusServerDevice::nextRequest()
 		return;
 	}
 
-	m_request = m_routineRequests.at(0);
+	if (!m_requests.empty()) {
+		m_request = m_requests.takeFirst();
+	}
+	else {
+		m_request = m_routineRequests.first();
+		m_routineRequests.append(m_routineRequests.takeFirst());
+	}
+	
 	QModbusReply *reply = m_rtu->sendRawRequest(m_request.request, m_request.address);
 
 	if (!reply->isFinished()) {
-		QObject::connect(reply, &QModbusReply::finished,      this, &ModbusServerDevice::onReplyFinished);
+		QObject::connect(reply, &QModbusReply::finished, this, &ModbusServerDevice::onReplyFinished);
 	}
 	else {
 		delete reply;
+		qWarning() << name() << "Received instant reply. Weird!";
 		QTimer::singleShot(300, this, SLOT(nextRequest()));
 	}
 }
