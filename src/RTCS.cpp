@@ -6,6 +6,8 @@ RTCS::RTCS() : QObject()
 	pid_heater = new PIDDevice("Heater", this);
 	pid_cooler = new PIDDevice("Cooler", this);
 	modbus_server = new ModbusServerDevice("Modbus", this);
+	m7015p = new M7015Device("M7015P", modbus_server);
+	pid_heater->saveSettings();
 }
 
 void RTCS::showMainWindow(bool fullscreen) {

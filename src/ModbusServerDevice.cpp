@@ -6,9 +6,6 @@ ModbusServerDevice::ModbusServerDevice(QString n, QObject *p) : Device(n, p)
 	loadSettings();
 
 	start();
-
-	addRoutineRequest(112, QModbusRequest(QModbusPdu::FunctionCode(0x04), quint16(0x00), quint16(0x06)), this);
-	request(112, QModbusRequest(QModbusPdu::FunctionCode(0x04), quint16(0x00), quint16(0x01)), this);
 }
 
 void ModbusServerDevice::loadSettings()
@@ -26,8 +23,8 @@ void ModbusServerDevice::loadSettings()
 void ModbusServerDevice::nextRequest()
 {
 	if (m_routineRequests.empty() && m_requests.empty()) {
-		qDebug() << name() << "waiting...";
-		QTimer::singleShot(300, this, SLOT(nextRequest()));
+		qDebug() << name() << "No requests to send. Waiting...";
+		QTimer::singleShot(m_timeout, this, SLOT(nextRequest()));
 		return;
 	}
 
@@ -38,7 +35,7 @@ void ModbusServerDevice::nextRequest()
 		m_request = m_routineRequests.first();
 		m_routineRequests.append(m_routineRequests.takeFirst());
 	}
-	
+
 	QModbusReply *reply = m_rtu->sendRawRequest(m_request.request, m_request.address);
 
 	if (!reply->isFinished()) {
@@ -47,7 +44,7 @@ void ModbusServerDevice::nextRequest()
 	else {
 		delete reply;
 		qWarning() << name() << "Received instant reply. Weird!";
-		QTimer::singleShot(300, this, SLOT(nextRequest()));
+		QTimer::singleShot(m_timeout, this, SLOT(nextRequest()));
 	}
 }
 
@@ -57,12 +54,12 @@ void ModbusServerDevice::onReplyFinished()
 	if (!reply)
 		return;
 
-	if (reply->error() == QModbusDevice::NoError) {
+	if ((reply->error() == QModbusDevice::NoError) || (reply->error() == QModbusDevice::ProtocolError)) {
 		const QModbusResponse response = reply->rawResult();
-		qInfo() << name() << "request: " << m_request.request.functionCode() << m_request.request.data() << "response: "<< response.data();
+		QMetaObject::invokeMethod(m_request.device, "processResponse", Q_ARG(QModbusRequest, m_request.request), Q_ARG(QModbusResponse, response));
 	}
 	else {
-		qCritical() << name() << "QModbusRtuSerialMaster" << reply->error();
+		qCritical() << name() << "QModbusRtuSerialMaster error: " << reply->error();
 	}
 
 	reply->deleteLater();

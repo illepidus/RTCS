@@ -5,6 +5,7 @@
 #include "RTCSMainWindow.h"
 #include "PIDDevice.h"
 #include "ModbusServerDevice.h"
+#include "M7015Device.h"
 
 #include <QObject>
 
@@ -16,6 +17,7 @@ private:
 	PIDDevice *pid_heater;
 	PIDDevice *pid_cooler;
 	ModbusServerDevice *modbus_server;
+	M7015Device *m7015p;
 public:
 	RTCS();
 public slots:

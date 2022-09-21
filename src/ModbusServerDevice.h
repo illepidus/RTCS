@@ -19,7 +19,7 @@ struct Request {
 	Request() {};
 	int            address;
 	QModbusRequest request;
-	Device*        device;
+	Device*  device;
 };
 
 public:
