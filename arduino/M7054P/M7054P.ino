@@ -27,8 +27,8 @@ void processModbus() {
 			//WRITING COILS
 			//IFAAQQCC
 			n = 8; //IFAAQQ part of response equals IFAAQQ part of request (sic!)
-			uint8_t data = modbus_buf[7];
-			PORTC = PORTC & (~(0xFF >> (8 - Q) << A)) | ((data & (0xFF >> (8 - Q))) << A);
+			uint8_t D = modbus_buf[7];
+			PORTC = PORTC & (~(0xFF >> (8 - Q) << A)) | ((D & (0xFF >> (8 - Q))) << A);
 		}
 	}
 	else {
