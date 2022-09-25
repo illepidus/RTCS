@@ -51,6 +51,7 @@ public slots:
 signals: 
 	void control(float, float);
 private:
+	QTimer *m_stepTimer;
 	double r, dt, Kp, Ki, Kd;    //Установочные параметры
 	double y;                    //Измеряемый параметр
 	double u, U, P, I, D, e, de; //Вычисляемые параметры

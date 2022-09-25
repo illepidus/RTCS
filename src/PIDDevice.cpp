@@ -4,6 +4,7 @@ PIDDevice::PIDDevice(QString n, QObject *p) : Device(n, p)
 {
 	loadSettings();
 	reset();
+	m_stepTimer = new QTimer(this);
 }
 
 void PIDDevice::loadSettings()
@@ -18,7 +19,7 @@ void PIDDevice::loadSettings()
 
 bool PIDDevice::reset()
 {
-	if (stateFlag(Device::Running)) {
+	if (isRunning()) {
 		qWarning() << name() << "Cannot reset PID while it is running";
 		return false;
 	}
@@ -55,41 +56,48 @@ bool PIDDevice::saveSettings()
 
 bool PIDDevice::start()
 {
-	if (stateFlag(Device::Disabled)) {
+	if (isDisabled()) {
 		qWarning() << name() << "Cannot start PID while it is disabled";
 		return false;
 	}
 
-	if (stateFlag(Device::Running)) {
+	if (!isAvailable()) {
+		qWarning() << name() << "Cannot start PID while y parameter is unset";
+	}
+
+	if (isRunning()) {
 		qWarning() << name() << "Cannot start PID while it is running";
 		return false;
 	}
 
 	reset();
 	setStateFlag(Device::Running, true);
+	QObject::connect(m_stepTimer, &QTimer::timeout, this, &PIDDevice::step, Qt::UniqueConnection);
 
 	return step();
 }
 
 bool PIDDevice::stop()
 {
-	if (!stateFlag(Device::Running)) {
+	if (!isRunning()) {
 		qInfo() << name() << "Nothing to stop as PID is not running";
 		return false;
 	}
-	setStateFlag(Device::Running, false);
+
+	qInfo() << name() << "PID stopped on step" << k;
+	return false;
+
+	m_stepTimer->stop();
+	QObject::disconnect(m_stepTimer, &QTimer::timeout, this, &PIDDevice::step);
+	setRunning(false);
 	return true;
 }
 
 bool PIDDevice::step()
 {
-	if (stateFlag(Device::Disabled)) {
+	if (isDisabled()) {
 		qWarning() << name() << "PID disabled on step" << k;
-		return false;
-	}
-
-	if (!stateFlag(Device::Running)) {
-		qInfo() << name() << "PID stopped on step" << k;
+		stop();
 		return false;
 	}
 
@@ -104,12 +112,12 @@ bool PIDDevice::step()
 	D = Kp * Kd * de / dt;
 
 	u = P + I + D;
-	U = (u < 0) ? 0 : (u > 1) ? 1 : u;
+	U = (u < -1) ? -1 : (u > 1) ? 1 : u;
 
 	_e = e;
 	k++;
 
-	QTimer::singleShot(dt * 1000, this, SLOT(step()));
+	m_stepTimer->singleShot(dt * 1000, this, SLOT(step()));
 	return true;
 }
 
@@ -159,12 +167,13 @@ bool PIDDevice::setKd(double v)
 		Kp = v;
 		return true;
 	}
-	qWarning() << name() << "Unable to set Kp to " << v;
+	qWarning() << name() << "Unable to set Kd to " << v;
 	return false;
 }
 
 bool PIDDevice::setY(double v)
 {
+	setAvailable(true);
 	if (qIsFinite(v)) {
 		y = v;
 		return true;

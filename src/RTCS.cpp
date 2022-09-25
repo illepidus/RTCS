@@ -8,6 +8,9 @@ RTCS::RTCS() : QObject()
 	modbus_server = new ModbusServerDevice("Modbus", this);
 	m7015p = new M7015Device("M7015P", modbus_server);
 	pid_heater->saveSettings();
+
+	QObject::connect(m7015p->sensor(0), &ThermometerDevice::newValue, main_window->process_widget, &ProcessWidget::setT1);
+	QObject::connect(m7015p->sensor(1), &ThermometerDevice::newValue, main_window->process_widget, &ProcessWidget::setT2);
 }
 
 void RTCS::showMainWindow(bool fullscreen) {

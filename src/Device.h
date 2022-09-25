@@ -13,16 +13,33 @@ class Device : public QObject
 
 	public:
 		enum StateFlag {
-			Disabled    = 0b00000001, //Any device can be disabled in config file or programmaticly.
-			Running     = 0b00000100  //Not that obvious
+			Disabled    = 0b00000001, //Устройство отключено
+			Available   = 0b00000010, //Устройство готово функционировать
+			Running     = 0b00000100, //Устройство совершают некую осмысленную деятельность
+			Waiting     = 0b00001000  //Устройство чего-то ожидает
 		};
 		Q_DECLARE_FLAGS(State, StateFlag)
 
 	public slots:
 		QString name() {return m_name;};
-		State state(){return m_state;};
+		State state()  {return m_state;};
+
+		bool isDisabled()  {return stateFlag(Device::Disabled);};
+		bool isAvailable() {return stateFlag(Device::Available);};
+		bool isRunning()   {return stateFlag(Device::Running);};
+		bool isWaiting()   {return stateFlag(Device::Waiting);};
+
+		virtual void disable() {setDisabled(true);};
+		virtual void enable() {setDisabled(false);};
+
+	protected slots:
+		void setDisabled (bool f){setStateFlag(Device::Disabled,  f);};
+		void setAvailable(bool f){setStateFlag(Device::Available, f);};
+		void setRunning  (bool f){setStateFlag(Device::Running,   f);};
+		void setWaiting  (bool f){setStateFlag(Device::Waiting,   f);};
+
 		void setState(State s);
-		bool stateFlag(StateFlag f);
+		bool stateFlag(StateFlag f) {return m_state.testFlag(f);};
 		void setStateFlag(StateFlag f, bool v);
 		void loadSettings();
 		QString settingsKey(QString k);
